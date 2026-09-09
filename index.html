@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Anuvidhya S — Embedded Systems &amp; Electronics</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&amp;family=IBM+Plex+Sans:wght@400;500;600&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #0B0F14;
+    --surface: #121821;
+    --surface-2: #1A222D;
+    --line: #26313F;
+    --text: #E7EDF3;
+    --muted: #8FA0B3;
+    --signal: #FF9F4A;
+    --signal-soft: rgba(255,159,74,0.12);
+    --teal: #5FD3C4;
+    --teal-soft: rgba(95,211,196,0.12);
+    --radius: 3px;
+    --maxw: 1080px;
+  }
+
+  *{ box-sizing: border-box; }
+  html{ scroll-behavior: smooth; }
+
+  @media (prefers-reduced-motion: reduce){
+    html{ scroll-behavior: auto; }
+    *{ animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; }
+  }
+
+  body{
+    margin:0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'IBM Plex Sans', system-ui, sans-serif;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1,h2,h3{
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 600;
+    margin: 0;
+    letter-spacing: -0.01em;
+  }
+
+  .mono{ font-family: 'IBM Plex Mono', monospace; }
+
+  a{ color: inherit; text-decoration: none; }
+
+  ::selection{ background: var(--signal-soft); color: var(--text); }
+
+  :focus-visible{
+    outline: 2px solid var(--teal);
+    outline-offset: 3px;
+  }
+
+  /* ---------- layout shell ---------- */
+  .wrap{
+    max-width: var(--maxw);
+    margin: 0 auto;
+    padding: 0 32px;
+  }
+
+  /* ---------- nav ---------- */
+  nav{
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: rgba(11,15,20,0.88);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--line);
+  }
+  nav .wrap{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 64px;
+  }
+  .nav-name{
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+  }
+  .nav-links{
+    display: flex;
+    gap: 28px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12.5px;
+    color: var(--muted);
+  }
+  .nav-links a{ transition: color 0.15s ease; }
+  .nav-links a:hover, .nav-links a.active{ color: var(--signal); }
+  @media (max-width: 720px){
+    .nav-links{ display: none; }
+  }
+
+  /* ---------- spine (progress rail) ---------- */
+  .spine{
+    position: fixed;
+    left: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 40;
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+    align-items: center;
+  }
+  .spine::before{
+    content: "";
+    position: absolute;
+    top: 0; bottom: 0;
+    width: 1px;
+    background: var(--line);
+    z-index: -1;
+  }
+  .spine .node{
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--surface-2);
+    border: 1px solid var(--line);
+    transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+    cursor: pointer;
+  }
+  .spine .node.active{
+    background: var(--signal);
+    border-color: var(--signal);
+    box-shadow: 0 0 0 4px var(--signal-soft);
+  }
+  @media (max-width: 900px){
+    .spine{ display: none; }
+  }
+
+  /* ---------- hero ---------- */
+  header.hero{
+    padding: 96px 0 88px;
+    border-bottom: 1px solid var(--line);
+    position: relative;
+    overflow: hidden;
+  }
+  .hero-grid{
+    display: grid;
+    grid-template-columns: 1.1fr 0.9fr;
+    gap: 48px;
+    align-items: center;
+  }
+  @media (max-width: 860px){
+    .hero-grid{ grid-template-columns: 1fr; }
+  }
+  .hero-eyebrow{
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+    color: var(--teal);
+    margin-bottom: 18px;
+  }
+  .hero h1{
+    font-size: clamp(36px, 5.2vw, 58px);
+    line-height: 1.08;
+    margin-bottom: 22px;
+  }
+  .hero h1 .accent{ color: var(--signal); }
+  .hero p.lede{
+    font-size: 17px;
+    color: var(--muted);
+    max-width: 480px;
+    margin-bottom: 32px;
+  }
+  .contact-strip{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 18px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+    color: var(--muted);
+  }
+  .contact-strip a:hover{ color: var(--signal); }
+  .contact-strip span.sep{ color: var(--line); }
+
+  .scope{
+    width: 100%;
+    aspect-ratio: 1/0.85;
+  }
+
+  /* ---------- sections generic ---------- */
+  section{
+    padding: 84px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .section-head{
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+    margin-bottom: 44px;
+  }
+  .section-head .index{
+    font-family: 'IBM Plex Mono', monospace;
+    color: var(--signal);
+    font-size: 13px;
+  }
+  .section-head h2{
+    font-size: 28px;
+  }
+
+  /* ---------- about ---------- */
+  .about-body{
+    display: grid;
+    grid-template-columns: 1.4fr 1fr;
+    gap: 48px;
+  }
+  @media (max-width: 780px){
+    .about-body{ grid-template-columns: 1fr; }
+  }
+  .about-body p{
+    font-size: 16px;
+    color: #C9D4DE;
+    max-width: 560px;
+  }
+  .facts{
+    border-left: 1px solid var(--line);
+    padding-left: 24px;
+  }
+  .fact{
+    padding: 14px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .fact:last-child{ border-bottom: none; }
+  .fact .label{
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11.5px;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+  .fact .value{ font-size: 15px; }
+
+  /* ---------- skills ---------- */
+  .skill-groups{
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 28px;
+  }
+  @media (max-width: 700px){
+    .skill-groups{ grid-template-columns: 1fr; }
+  }
+  .skill-group{
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 22px 24px;
+  }
+  .skill-group h3{
+    font-size: 14px;
+    color: var(--teal);
+    margin-bottom: 16px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-weight: 500;
+  }
+  .chips{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .chip{
+    font-size: 13px;
+    padding: 6px 12px;
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    color: var(--text);
+    background: var(--surface-2);
+  }
+
+  /* ---------- projects ---------- */
+  .projects{
+    display: grid;
+    gap: 20px;
+  }
+  .project{
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    gap: 28px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 28px 30px;
+  }
+  @media (max-width: 720px){
+    .project{ grid-template-columns: 1fr; }
+  }
+  .project.featured{
+    border-color: var(--signal);
+    background: linear-gradient(180deg, rgba(255,159,74,0.06), var(--surface));
+  }
+  .project-meta{
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .project-meta h3{
+    font-size: 18px;
+  }
+  .badge{
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--signal);
+    border: 1px solid var(--signal);
+    border-radius: 20px;
+    padding: 3px 10px;
+    width: fit-content;
+  }
+  .badge.muted{ color: var(--muted); border-color: var(--line); }
+  .project-tag{
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    color: var(--muted);
+  }
+  .project-body p{
+    color: #C9D4DE;
+    font-size: 15px;
+    margin: 0 0 12px;
+  }
+  .project-body .contribution{
+    border-left: 2px solid var(--teal);
+    padding-left: 14px;
+    margin-top: 14px;
+    font-size: 14.5px;
+    color: var(--text);
+  }
+  .project-body .contribution .who{
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11.5px;
+    color: var(--teal);
+    display: block;
+    margin-bottom: 6px;
+  }
+
+  /* ---------- education timeline ---------- */
+  .timeline{
+    position: relative;
+    padding-left: 28px;
+    border-left: 1px solid var(--line);
+  }
+  .tl-item{
+    position: relative;
+    padding-bottom: 36px;
+  }
+  .tl-item:last-child{ padding-bottom: 0; }
+  .tl-item::before{
+    content: "";
+    position: absolute;
+    left: -33px;
+    top: 4px;
+    width: 9px; height: 9px;
+    border-radius: 50%;
+    background: var(--bg);
+    border: 2px solid var(--signal);
+  }
+  .tl-item h3{ font-size: 17px; margin-bottom: 4px; }
+  .tl-item .org{ color: var(--muted); font-size: 14px; margin-bottom: 6px; }
+  .tl-item .stat{
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12.5px;
+    color: var(--teal);
+  }
+
+  /* ---------- leadership ---------- */
+  .lead-grid{
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+  @media (max-width: 860px){
+    .lead-grid{ grid-template-columns: 1fr; }
+  }
+  .lead-card{
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .lead-card.current{
+    border-color: var(--teal);
+  }
+  .lead-role{ font-size: 16px; font-weight: 600; }
+  .lead-org{
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12.5px;
+    color: var(--teal);
+  }
+  .lead-card p{
+    font-size: 14px;
+    color: var(--muted);
+    margin: 0;
+  }
+  .tenure{
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11.5px;
+    color: var(--signal);
+  }
+
+  /* ---------- footer ---------- */
+  footer{
+    padding: 64px 0 48px;
+  }
+  .footer-grid{
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    flex-wrap: wrap;
+    gap: 24px;
+  }
+  footer h2{
+    font-size: 26px;
+    max-width: 420px;
+  }
+  .footer-links{
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13.5px;
+    color: var(--muted);
+  }
+  .footer-links a:hover{ color: var(--signal); }
+  .footer-bottom{
+    margin-top: 56px;
+    padding-top: 20px;
+    border-top: 1px solid var(--line);
+    display: flex;
+    justify-content: space-between;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    color: var(--muted);
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .reveal{
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  .reveal.in{
+    opacity: 1;
+    transform: translateY(0);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+
+  /* ---------- edit mode ---------- */
+  .edit-bar{
+    position: fixed;
+    bottom: 22px;
+    right: 22px;
+    z-index: 100;
+    display: flex;
+    gap: 10px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 30px;
+    padding: 8px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  }
+  .edit-bar button{
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12.5px;
+    color: var(--text);
+    background: var(--surface-2);
+    border: 1px solid var(--line);
+    border-radius: 24px;
+    padding: 9px 16px;
+    cursor: pointer;
+    transition: border-color 0.15s ease, color 0.15s ease;
+  }
+  .edit-bar button:hover{ border-color: var(--teal); color: var(--teal); }
+  .edit-bar button.on{
+    background: var(--signal-soft);
+    border-color: var(--signal);
+    color: var(--signal);
+  }
+  .edit-bar .hint{
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    align-self: center;
+    padding: 0 6px;
+    max-width: 150px;
+    display: none;
+  }
+  body.editing .edit-bar .hint{ display: block; }
+
+  body.editing .editable-zone{
+    outline: 1px dashed var(--line);
+    outline-offset: 6px;
+    border-radius: 4px;
+    transition: outline-color 0.15s ease;
+  }
+  body.editing .editable-zone:hover{
+    outline-color: var(--teal);
+  }
+  body.editing .editable-zone:focus{
+    outline: 1px dashed var(--signal);
+    outline-offset: 6px;
+  }
+</style>
+</head>
+<body class="">
+
+<nav>
+  <div class="wrap">
+    <div class="nav-name">Anuvidhya S</div>
+    <div class="nav-links">
+      <a href="#about" data-nav="about" class="">About</a>
+      <a href="#skills" data-nav="skills" class="">Skills</a>
+      <a href="#projects" data-nav="projects">Projects</a>
+      <a href="#education" data-nav="education" class="">Education</a>
+      <a href="#leadership" data-nav="leadership" class="active">Leadership</a>
+    </div>
+  </div>
+</nav>
+
+<div class="spine" id="spine">
+  <div class="node" data-target="hero"></div>
+  <div class="node" data-target="about"></div>
+  <div class="node" data-target="skills"></div>
+  <div class="node" data-target="projects"></div>
+  <div class="node" data-target="education"></div>
+  <div class="node active" data-target="leadership"></div>
+</div>
+
+<header class="hero" id="hero">
+  <div class="wrap hero-grid">
+    <div class="editable-zone" spellcheck="false">
+      <div class="hero-eyebrow mono">Electronics &amp; Communication Engineering · CEG, 2023–2027</div>
+      <h1>Building the circuits, firmware, and logic that let small devices <span class="accent">sense, decide, and defend.</span></h1>
+      <p class="lede">I work at the point where hardware meets code — microcontrollers, IoT systems, drones, and lately, the models that help embedded devices notice when something's wrong.</p>
+      <div class="contact-strip">
+        <a href="mailto:vidhyakanikumar@gmail.com">vidhyakanikumar@gmail.com</a>
+        <span class="sep">/</span>
+        <a href="tel:+918610711443">+91 86107 11443</a>
+        <span class="sep">/</span>
+        <a href="https://linkedin.com/in/anuvidhyas" target="_blank" rel="noopener">linkedin.com/in/anuvidhyas</a>
+        <span class="sep">/</span>
+        <span>Tiruchirappalli, INDIA</span>
+      </div>
+    </div>
+    <div>
+      <svg class="scope" viewBox="0 0 420 360" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="0.5" y="0.5" width="419" height="359" rx="4" stroke="#26313F"></rect>
+        <line x1="0" y1="90" x2="420" y2="90" stroke="#1A222D"></line>
+        <line x1="0" y1="180" x2="420" y2="180" stroke="#1A222D"></line>
+        <line x1="0" y1="270" x2="420" y2="270" stroke="#1A222D"></line>
+        <line x1="105" y1="0" x2="105" y2="360" stroke="#1A222D"></line>
+        <line x1="210" y1="0" x2="210" y2="360" stroke="#1A222D"></line>
+        <line x1="315" y1="0" x2="315" y2="360" stroke="#1A222D"></line>
+        <path id="trace1" d="M10 260 L60 260 L80 120 L100 300 L130 90 L150 260 L200 260 L220 60 L240 260 L420 260" stroke="#5FD3C4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none" stroke-dasharray="900" stroke-dashoffset="900" style="transition: stroke-dashoffset 1.6s ease-out; stroke-dashoffset: 0;"></path>
+        <path id="trace2" d="M10 190 L45 190 L65 150 L85 220 L110 170 L140 190 L420 190" stroke="#FF9F4A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none" stroke-dasharray="700" stroke-dashoffset="700" opacity="0.75" style="transition: stroke-dashoffset 1.6s ease-out 0.25s; stroke-dashoffset: 0;"></path>
+        <circle cx="220" cy="60" r="4" fill="#FF9F4A"></circle>
+      </svg>
+    </div>
+  </div>
+</header>
+
+<section id="about">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="index mono">01</span>
+      <h2>About</h2>
+    </div>
+    <div class="about-body">
+      <p class="editable-zone" spellcheck="false">
+        I'm an Electronics and Communication Engineering student at the College of Engineering, Guindy, with a running
+        interest in embedded systems, IoT, and Machine Learning. Most of what
+        I build sits close to the metal — firmware on Arduino, ESP32, and STM32, circuits sketched out in EasyEDA,
+        signals moving over UART and CAN. Outside coursework, I've assembled and flight-tested a delivery drone,
+        built a secure OTP-controlled lock, and put together a wearable health monitor — and I'm currently learning
+        how to bring machine learning onto these same small devices, to help them spot trouble before it spreads.
+      </p>
+      <div class="facts reveal editable-zone in" spellcheck="false">
+        <div class="fact">
+          <div class="label mono">CURRENTLY</div>
+          <div class="value">B.E. Electronics &amp; Communication Engineering, CEG · CGPA 8.30/10</div>
+        </div>
+        <div class="fact">
+          <div class="label mono">ALSO</div>
+          <div class="value">B.S. Data Science (Foundation), IIT Madras</div>
+        </div>
+        <div class="fact">
+          <div class="label mono">FOCUS AREAS</div>
+          <div class="value">Embedded systems · IoT · Drone hardware · Machine Learning</div>
+        </div>
+        <div class="fact">
+          <div class="label mono">LANGUAGES</div>
+          <div class="value">English, Tamil</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="skills">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="index mono">02</span>
+      <h2>Skills</h2>
+    </div>
+    <div class="skill-groups">
+      <div class="skill-group editable-zone" spellcheck="false">
+        <h3>Firmware &amp; Languages</h3>
+        <div class="chips">
+          <span class="chip">C</span>
+          <span class="chip">C++</span>
+          <span class="chip">Python</span>
+          <span class="chip">Verilog</span>
+        </div>
+      </div>
+      <div class="skill-group editable-zone" spellcheck="false">
+        <h3>Microcontrollers &amp; Platforms</h3>
+        <div class="chips">
+          <span class="chip">Arduino</span>
+          <span class="chip">ESP32</span>
+          <span class="chip">STM32</span>
+        </div>
+      </div>
+      <div class="skill-group editable-zone" spellcheck="false">
+        <h3>EDA &amp; Simulation</h3>
+        <div class="chips">
+          <span class="chip">EasyEDA</span>
+          <span class="chip">Vivado</span>
+          <span class="chip">MATLAB</span>
+        </div>
+      </div>
+      <div class="skill-group editable-zone" spellcheck="false">
+        <h3>Communication Protocols</h3>
+        <div class="chips">
+          <span class="chip">UART</span>
+          <span class="chip">CAN</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="projects">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="index mono">03</span>
+      <h2>Projects</h2>
+    </div>
+    <div class="projects">
+
+      <div class="project featured editable-zone" spellcheck="false">
+        <div class="project-meta">
+          <span class="badge">Ongoing</span>
+          <h3>Embedded Cybersecurity Anomaly Detector</h3>
+          <span class="project-tag">IoT security · On-device ML</span>
+        </div>
+        <div class="project-body">
+          <p>An <strong data-start="48" data-end="91">embedded cybersecurity anomaly detector</strong> designed to monitor <strong data-start="112" data-end="137">CAN bus communication</strong> and identify abnormal or potentially malicious messages in real time. The system uses an <strong data-start="227" data-end="271">autoencoder-based machine learning model</strong> trained on normal CAN traffic to detect deviations from expected communication patterns.&nbsp;<span style="color: rgb(231, 237, 243); font-size: 14.5px; background-color: rgba(0, 0, 0, 0);">My contribution focuses on the </span><strong data-start="395" data-end="411" style="color: rgb(231, 237, 243); font-size: 14.5px; background-color: rgba(0, 0, 0, 0);">ML component</strong><span style="color: rgb(231, 237, 243); font-size: 14.5px; background-color: rgba(0, 0, 0, 0);">, including </span><strong data-start="423" data-end="555" style="color: rgb(231, 237, 243); font-size: 14.5px; background-color: rgba(0, 0, 0, 0);">data preprocessing, feature extraction, autoencoder training, reconstruction-error analysis, and anomaly-threshold determination</strong><span style="color: rgb(231, 237, 243); font-size: 14.5px; background-color: rgba(0, 0, 0, 0);">. The trained model is intended to work alongside STM32-based CAN nodes to detect anomalies such as </span><strong data-start="655" data-end="711" style="color: rgb(231, 237, 243); font-size: 14.5px; background-color: rgba(0, 0, 0, 0);">message injection or abnormal motor-related behavior</strong><span style="color: rgb(231, 237, 243); font-size: 14.5px; background-color: rgba(0, 0, 0, 0);">.</span></p>
+        </div>
+      </div>
+
+      <div class="project editable-zone" spellcheck="false">
+        <div class="project-meta">
+          <span class="badge muted">Completed</span>
+          <h3>Delivery Drone</h3>
+          <span class="project-tag">Autonomous delivery system</span>
+        </div>
+        <div class="project-body"><p><span style="color: rgb(231, 237, 243);">An autonomous drone system designed for </span><strong data-start="909" data-end="935" style="color: rgb(231, 237, 243);">secure parcel delivery</strong><span style="color: rgb(231, 237, 243);">, capable of carrying a target payload of </span><strong data-start="977" data-end="987" style="color: rgb(231, 237, 243);">0.5 kg</strong><span style="color: rgb(231, 237, 243);">.&nbsp;</span>Contributed to <strong data-start="1161" data-end="1241">drone assembly, hardware integration, system development, and flight testing</strong>. Worked on integrating the flight-control hardware and validating the drone's performance under practical operating conditions.</p><p data-start="1123" data-end="1369" class="PDq2pG_selectionAnchorContainer"><span aria-hidden="true" class="PDq2pG_selectionAnchor"></span></p>
+        </div>
+      </div>
+
+      <div class="project editable-zone" spellcheck="false">
+        <div class="project-meta">
+          <span class="badge muted">Completed</span>
+          <h3>OTP-Based Servo-Controlled Lock</h3>
+          <span class="project-tag">Secure parcel delivery</span>
+        </div>
+        <div class="project-body">
+          <p>
+            An OTP-authenticated servo lock built for secure parcel delivery, paired with a custom mobile app
+            (DAAL). Worked on the hardware architecture as well as the OTP generation and verification system.
+          </p>
+        </div>
+      </div>
+
+      <div class="project editable-zone" spellcheck="false">
+        <div class="project-meta">
+          <span class="badge muted">Completed</span>
+          <h3>IoT-Based Health Band</h3>
+          <span class="project-tag">IoT wearable</span></div><div class="project-body"><p data-start="1967" data-end="2177" class="PDq2pG_selectionAnchorContainer">
+An <strong data-start="1989" data-end="2036">IoT-based wearable health-monitoring system</strong> designed to track parameters such as <strong data-start="2074" data-end="2109">body temperature and step count</strong> and provide real-time data visualization through a mobile platform.Worked on <strong data-start="2212" data-end="2296">sensor integration, embedded programming, data acquisition, and IoT connectivity</strong>, including interfacing the sensors with the microcontroller and integrating the system with <strong data-start="2389" data-end="2398">Blynk</strong> for remote monitoring.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<section id="education">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="index mono">04</span>
+      <h2>Education</h2>
+    </div>
+    <div class="timeline editable-zone" spellcheck="false">
+      <div class="tl-item">
+        <h3>B.E., Electronics and Communication Engineering</h3>
+        <div class="org">College of Engineering, Guindy · 2023–2027</div>
+        <div class="stat mono">CGPA 8.30 / 10 (through 5th semester)</div>
+      </div>
+      <div class="tl-item">
+        <h3>B.S., Data Science — Foundation level completed</h3>
+        <div class="org">Indian Institute of Technology Madras</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="leadership">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="index mono">05</span>
+      <h2>Leadership &amp; Volunteering</h2>
+    </div>
+    <div class="lead-grid">
+      <div class="lead-card current editable-zone" spellcheck="false">
+        <span class="tenure">Current</span>
+        <div class="lead-role">Vice President</div>
+        <div class="lead-org">ECEA</div>
+        <p>Started as Joint Secretary for the Newsletter &amp; Magazine domain, now leading as Vice President —
+        coordinating departmental events and workshops and shaping how the department communicates internally.</p>
+      </div>
+      <div class="lead-card current editable-zone" spellcheck="false">
+        <span class="tenure">2 years running</span>
+        <div class="lead-role">Head of Photography</div>
+        <div class="lead-org">Pixels</div>
+        <p>Leading photography coverage for major campus and outside events for two years — coordinating shoot
+        teams, managing timely content delivery, documenting events, and mentoring junior members.</p>
+      </div>
+      <div class="lead-card editable-zone" spellcheck="false">
+        <div class="lead-role">Volunteer</div>
+        <div class="lead-org">Youth Red Cross</div>
+        <p>Taking part in social service and awareness programs focused on health, safety, and community welfare.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="footer-grid">
+      <h2 class="editable-zone" spellcheck="false">Open to conversations about embedded systems, IoT, Machine Learning and anything with a circuit board.</h2>
+      <div class="footer-links editable-zone" spellcheck="false">
+        <a href="mailto:vidhyakanikumar@gmail.com">vidhyakanikumar@gmail.com</a>
+        <a href="tel:+918610711443">+91 86107 11443</a>
+        <a href="https://linkedin.com/in/anuvidhyas" target="_blank" rel="noopener">linkedin.com/in/anuvidhyas</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>Anuvidhya S · Tiruchirappalli, India</span>
+      <span>Electronics &amp; Communication Engineering, CEG</span>
+    </div>
+  </div>
+</footer>
+
+<div class="edit-bar" id="editBar">
+  <button id="editToggle" type="button" class="">Edit content</button>
+  <button id="downloadBtn" type="button">Download HTML</button>
+  <span class="hint mono">Click any dashed section, then type. Download saves your changes.</span>
+</div>
+
+<script>
+  // one-time oscilloscope trace draw-on
+  window.addEventListener('DOMContentLoaded', () => {
+    const t1 = document.getElementById('trace1');
+    const t2 = document.getElementById('trace2');
+    requestAnimationFrame(() => {
+      if(t1){ t1.style.transition = 'stroke-dashoffset 1.6s ease-out'; t1.style.strokeDashoffset = '0'; }
+      if(t2){ t2.style.transition = 'stroke-dashoffset 1.6s ease-out 0.25s'; t2.style.strokeDashoffset = '0'; }
+    });
+  });
+
+  // reveal facts panel once
+  const revealEls = document.querySelectorAll('.reveal');
+  const revealObserver = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if(e.isIntersecting){ e.target.classList.add('in'); revealObserver.unobserve(e.target); } });
+  }, { threshold: 0.2 });
+  revealEls.forEach(el => revealObserver.observe(el));
+
+  // spine + nav active state
+  const sections = ['hero','about','skills','projects','education','leadership'].map(id => document.getElementById(id));
+  const nodes = document.querySelectorAll('.spine .node');
+  const navLinks = document.querySelectorAll('.nav-links a');
+
+  const sectionObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if(entry.isIntersecting){
+        const id = entry.target.id;
+        nodes.forEach(n => n.classList.toggle('active', n.dataset.target === id));
+        navLinks.forEach(a => a.classList.toggle('active', a.dataset.nav === id));
+      }
+    });
+  }, { threshold: 0.4, rootMargin: '-10% 0px -40% 0px' });
+  sections.forEach(s => { if(s) sectionObserver.observe(s); });
+
+  nodes.forEach(n => {
+    n.addEventListener('click', () => {
+      const target = document.getElementById(n.dataset.target);
+      if(target) target.scrollIntoView({ behavior: 'smooth' });
+    });
+  });
+
+  // ---------- edit mode ----------
+  const editToggle = document.getElementById('editToggle');
+  const downloadBtn = document.getElementById('downloadBtn');
+  const editableZones = document.querySelectorAll('.editable-zone');
+  let editing = false;
+
+  function setEditing(on){
+    editing = on;
+    document.body.classList.toggle('editing', editing);
+    editToggle.classList.toggle('on', editing);
+    editToggle.textContent = editing ? 'Done editing' : 'Edit content';
+    editableZones.forEach(zone => {
+      zone.setAttribute('contenteditable', editing ? 'true' : 'false');
+      zone.spellcheck = false;
+    });
+  }
+  setEditing(false);
+
+  editToggle.addEventListener('click', () => setEditing(!editing));
+
+  downloadBtn.addEventListener('click', () => {
+    // work on a clone so the live page and its edit-mode state stay untouched
+    const clone = document.documentElement.cloneNode(true);
+
+    // turn off editing affordances in the saved copy
+    clone.querySelector('body').classList.remove('editing');
+    const cloneZones = clone.querySelectorAll('.editable-zone');
+    cloneZones.forEach(z => z.removeAttribute('contenteditable'));
+    const cloneToggle = clone.querySelector('#editToggle');
+    if(cloneToggle){ cloneToggle.classList.remove('on'); cloneToggle.textContent = 'Edit content'; }
+
+    const html = '<!DOCTYPE html>\n' + clone.outerHTML;
+    const blob = new Blob([html], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'anuvidhya_portfolio.html';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  });
+</script>
+
+
+
+</body></html>
